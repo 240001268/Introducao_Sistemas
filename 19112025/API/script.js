@@ -77,7 +77,7 @@ async function createItem(name) {
     
     return request(API_BASE_URL, {
         method: 'POST',
-        body: JSON.stringify({ name }) // Convertemos o objeto para String no formato JSON
+        body: JSON.stringify({ name:newName }) // Convertemos o objeto para String no formato JSON
     })
 }
 
@@ -103,4 +103,79 @@ addbtn.addEventListener('click', async () => {
     }  catch (error) {
         console.error('Error creating item:', error); // Log do erro caso exista
 }
+})
+
+// Atualização (PUT) de um item
+
+let updateButton = document.getElementById('updateItemBtn'); // Vamos buscar o botão 'Update Item' através do ID, este ID pode ser visto no ficheiro index.html
+
+async function updateItem(is,newName) {
+    
+    return request(`${API_BASE_URL}/${id}`),{
+        method: 'PUT',
+        body: JSON.stringify({newName}) // Convertemos o objeto para String no formato JSON
+    }
+
+}
+
+updateButton.addEventListener('click', async () => {
+
+let id = document.getElementById('itemIdInput').value; // Vamos buscar o valor do input do ID do item
+
+    if(!id ||   id <= 0) {
+        console.log('Please enter an ID!');
+        return;
+    }
+
+    let newName = prompt('Enter the new name for the item:'); // Abrimos uma janela de prompt para o utilizador inserir o novo nome do item
+
+    if (!newName) {
+        console.log('Update cancelled !')
+        return; // Se o utilizador não inserir um nome, cancelamos a operação
+    }
+    try {
+
+        let updatedItem = await updateItem(id, newName); // Esperamos que a função updateItem atualize o item e nos retorne o objeto JSON do item atualizado
+        console.log(updatedItem); // Log do item atualizado
+        let items = await getAllItems(); // Vamos buscar a lista atualizada de items
+        renderItems(items); // Atualizamos a lista que está no ecrã 
+    
+    }    catch(error){
+        console.log(error.message); // Log do erro caso exista
+    }   
+
+})
+
+// Eliminação (DELETE) de um item
+
+
+async   function deleteItem(id) {
+    
+    return request(`${API_BASE_URL}/${id}`, {
+        method: 'DELETE'
+    })
+}
+
+let deleteButton = document.getElementById('deleteItemBtn'); // Vamos buscar o botão 'Delete Item' através do ID, este ID pode ser visto no ficheiro index.html
+
+deleteButton.addEventListener('click', async () => {
+
+    let id = document.getElementById('itemIdInput').value; // Vamos buscar o valor do input do ID do item
+
+    if (!id || id <= 0) {
+        console.log('Please enter a valid ID!');
+        return;
+    }
+
+    try {
+        
+        let deletedItem = await deleteItem(id); // Esperamos que a função deleteItem elimine o item e nos retorne o objeto JSON do item eliminado
+        console.log('Item deleted:', deletedItem); // Log do item eliminado
+        let items = await getAllItems(); // Vamos buscar a lista atualizada de items
+        renderItems(items); // Atualizamos a lista que está no ecrã
+
+
+    }   catch (error) {
+        console.error('Error deleting item:', error); // Log do erro caso exista
+    }
 })
