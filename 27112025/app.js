@@ -19,56 +19,130 @@ let reviews = [
 let nextBookId = 3;
 let nextReviewId = 4
 
-
-
-
-//----------- Croud de Livros ----------
+// --------------------- CRUD Books --------------------------
 
 app.get('/books', (req, res) => {
-  res.json(books); // Retorna a lista de livros
-});
+  res.json(books)
+})
 
 app.get('/book/:id', (req, res) => {
-  let id = Number(req.params.id); // Converte o ID para número
-  let book = books.find(b => b.id === id); // Procura o livro pelo ID
-  if (!book) 
-    return res.status(404).jsano({message: 'Book not found!'}); // Verifica se o livro existe
-  res.json(book); // Retorna o livro encontrado
-});
 
-//----------- criar novo livro ----------
+  let id = Number(req.params.id)
 
-app.post ('/books', (req, res) => {
+  let book = books.find(b => b.id == id)
 
-  let { title, author } = req.body; // Extrai título e autor do corpo da requisição
+  if (!book)
+    return res.status(404).json( {message : 'Book not found'} )
 
-  if (!title || !author) {
-    return res.status(400).json({ message: 'Title and author are required!' }); // Verifica se título e autor foram fornecidos
-    let newBook = {
-      id: nextBookId++, // Atribui um novo ID
-      title,
-      author
-    };
-    books.push(newBook); // Adiciona o novo livro à lista 
-      res.status(201).json(newBook); // Retorna mensagem de sucesso e o livro criado
+  res.json(book)
+
+})
+
+app.post('/books', (req, res) => {
+
+  let {title , author} = req.body
+
+  if (!title || !author) 
+    return res.status(400).json( {message: 'Title and author are required'})
+
+  let newBook = {
+    id: nextBookId++,
+    title,
+    author
   }
-  });
 
-  app.delete('/book/:id', (req, res) => {
+  books.push(newBook)
 
-    let id = Number(req.params.id); // Converte o ID para número
-    let book = books.filter(b => b.id !== id); // Filtra o livro pelo ID
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found!' }); // Verifica se o livro existe
-    
-    books = books.filter(b => b.id != id); // Atualiza a lista de livros
-    res.status(200).json({ message: 'Book deleted successfully!' }); // Retorna mensagem de sucesso
-    }
+  res.status(201).json(newBook);
 
+})
 
-    // ---------- Start server ----------
+app.delete('/books/:id', (req, res) => {
+
+  let id = Number(req.params.id)
+
+  let book = books.find(b => b.id == id)
+
+  if (!book) 
+    return res.status(404).json({ message : 'Book not found'})
+
+  books = books.filter(b => b.id != id)
+
+  res.status(204).send()
+
+})
+
+app.put('/book/:id', (req, res) => {
+
+  let id = Number(req.params.id)
+
+  let book = books.find(b => b.id == id)
+
+  if (!book) 
+    return res.status(404).json( {message : 'Book not found'})
+
+  let {title, author} = req.body
+
+  if (!title && !author)
+    return res.status(400).json( {message: 'One of the fields must have information'})
+
+  if (title)
+    book.title = title;
+
+  if (author)
+    book.author = author;
+
+  res.json(book)
+
+})
+
+// ---------------- CRUD REVIEWS ---------------------------
+
+app.get('/book/:bookId/reviews', (req, res) => {
+
+  let id = Number(req.params.bookId)
+
+  let book = books.find(b => b.id == id)
+
+  if(!book)
+    return res.status(404).json( { message: 'Book not found'})
+
+  res.json(reviews.filter(r => r.bookId == id))
+
+})
+
+app.post('/book/:bookId/reviews', (req, res) => {
+
+  let id = Number(req.params.bookId)
+
+  let book = books.find(b => b.id == id)
+
+  if(!book)
+    return res.status(404).json( { message: 'Book not found'})
+
+  let {reviewer, rating, comment} = req.body
+
+  if (!reviewer || !rating || !comment) 
+    return res.status(400).json( { message : 'Missing fields'})
+
+  let newReview = {
+    id: nextReviewId++,
+    bookId: id,
+    reviewer,
+    rating,
+    comment
+  }
+
+  reviews.push(newReview)
+
+  res.status(201).json(newReview)
+
+})
+
+// ---------- Start server ----------
 
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`API running at http://localhost:${PORT}`);
 });
+
